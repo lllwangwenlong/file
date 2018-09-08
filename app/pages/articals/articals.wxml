@@ -1,0 +1,24 @@
+<!--pages/articals/articals.wxml-->
+
+<view class='artical'>
+  <image src='/static/img/reading.svg' class='reading' wx:if="{{isLoading}}"></image>
+  <view class='wemark' style="{{'font-size:'+ font +'rpx'}}" wx:else>
+    <wemark md="{{article}}" highlight type="rich-text"></wemark>
+  </view>
+  <!-- 目录 -->
+  <scroll-view scroll-y class="catalog {{isShow ? 'active' : ''}}">
+    <view class='catalog-item' wx:for="{{catalog}}" wx:key="{{index}}" bindtap='handleArticle' data-id='{{item._id}}'>
+      {{item.title}}
+    </view>
+  </scroll-view>
+  <view class='mask' wx:if="{{isShow}}" bindtap='toggleMulu'>
+  </view>
+  <!-- 菜单 -->
+  <view class='menu'>
+    <view class='iconfont icon-last' bindtap='handlePrev'></view>
+    <view class='iconfont icon-mulu' bindtap='toggleMulu'></view>
+    <view class='iconfont icon-zitifangda' bindtap='handleAdd'></view>
+    <view class='iconfont icon-zitisuoxiao' bindtap='handleReduce'></view>
+    <view class='iconfont icon-next' bindtap='handleNext'></view>
+  </view>
+</view>

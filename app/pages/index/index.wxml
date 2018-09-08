@@ -1,0 +1,55 @@
+<!--index.wxml-->
+<view>
+  <view class='container index'>
+    <image src='/static/img/loading.svg' class='loading' wx:if="{{isLoading}}" ></image>
+    <view wx:else>
+    <swiper indicator-dots="{{indicatorDots}}" autoplay="{{autoplay}}" interval="{{interval}}" duration="{{duration}}" circular="{{circular}}">
+      <block wx:for="{{swiperData}}" wx:key="{{index}}">
+        <swiper-item data-id="{{item.book._id}}" bindtap="jumpBook">
+          <image src="{{item.img}}" class="slide-image"/>
+        </swiper-item>
+      </block>
+    </swiper>
+      <view class='main-content'>
+        <view class='content-item' wx:for="{{mainContent}}" wx:key="{{index}}">
+          <view class='title'>
+            {{item.title}}
+          </view>
+          <view  wx:for="{{item.books}}" wx:key="{{index}}">
+            <view class='content' data-id="{{item._id}}" bindtap="jumpBook">
+            <view class='box-l'>
+              <image src='{{item.img}}' class='img'></image>
+            </view>
+            <view class='box-r'>
+              <view>
+                <view class='book-title'>{{item.title}}</view>
+                <view class='book-desc'>{{item.desc}}</view>
+              </view>
+              <view class='auther'>
+                <text class='auther-l'>{{item.author}}</text>
+                <view class='auther-r'>
+                  <text class='update-time'>{{item.time}}更新</text>
+                  <text class='many'>{{item.looknums}}人喜欢</text>
+                </view>
+              </view>
+            </view>
+          </view>
+          </view>
+        </view>
+      </view>
+      <!-- 下拉加载资源 -->
+      <view wx:if="{{moreBooks}}">
+        <view class='loading-more' wx:if="{{hasMore}}">  
+          <image src='/static/img/loadingmore.svg' class='loading-img'></image>
+          <text>正在加载中...</text>
+        </view>
+        <view class='no-more' wx:else>
+          <text>我是有底线的...</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+
+

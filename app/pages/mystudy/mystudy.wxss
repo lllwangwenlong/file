@@ -1,0 +1,86 @@
+/* pages/mystudy/mystudy.wxss */
+.loading{
+  width: 200rpx;
+  height: 200rpx;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+}
+
+.readbook-desc{
+  margin: 0 20rpx 40rpx 20rpx;
+  display: flex;
+  justify-content: space-between;
+}
+
+.readbook-desc .readbook-l image{
+  width: 230rpx;
+  height: 300rpx;
+  box-shadow: 4px 4px 2px #888;
+}
+
+.readbook-desc .readbook-r{
+  width: 460rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.readbook-r .book-title{
+  font-size: 14px;
+  color: #333;
+}
+
+.readbook-r .book-chapter{
+  font-size: 12px;
+  color: #888;
+}
+
+.readbook-r .scroll-bar{
+  font-size: 10px;
+  display: flex;
+  color: #888;
+  justify-content: space-between;
+}
+.readbook-r .scroll-bar progress{
+  width: 360rpx
+}
+
+.readbook-r .last-read{
+  font-size: 12px;
+  color: #888;
+  display: flex;
+  justify-content: space-between;
+}
+
+.last-read .last-read-l{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp:1;
+  overflow: hidden;
+  width: 300rpx;
+  height: 15px;
+}
+
+/* .last-read .last-read-r{
+  width: 180rpx;
+  height: 15px;
+  text-align: center;
+} */
+
+.read-active{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.read-active .btn{
+  width:160rpx;
+  height: 60rpx;
+  font-size: 12px;
+  color: #444;
+  font-weight: 700;
+  background: #f1f1f1
+}

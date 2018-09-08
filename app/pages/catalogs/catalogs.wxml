@@ -1,0 +1,12 @@
+<!--pages/catalogs/catalogs.wxml-->
+<view>
+  <image src='/static/img/reading.svg' class='loading' wx:if="{{isLoading}}"></image>
+  <view class='catalogs' wx:else>
+    <view class='catalogs-list' wx:for="{{bookCatalogs}}" wx:key="{{index}}">
+      <navigator  url="/pages/articals/articals?id={{item._id}}&&bookId={{item.bookId}}">
+        {{item.title}}
+      </navigator >
+    </view>
+  </view>
+</view>
+

@@ -1,0 +1,39 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/details/details",
+    "pages/catalogs/catalogs",
+    "pages/articals/articals",
+    "pages/mystudy/mystudy",
+    "pages/personal/personal",
+    "pages/collectlist/collectlist"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "天天看书",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "/static/img/home1.png",
+        "selectedIconPath": "/static/img/home2.png"
+      },
+      {
+        "pagePath": "pages/mystudy/mystudy",
+        "text": "我的学习",
+        "iconPath": "/static/img/book1.png",
+        "selectedIconPath": "/static/img/book2.png"
+      },
+      {
+        "pagePath": "pages/personal/personal",
+        "text": "个人中心",
+        "iconPath": "/static/img/person1.png",
+        "selectedIconPath": "/static/img/person2.png"
+      }
+    ]
+  }
+}

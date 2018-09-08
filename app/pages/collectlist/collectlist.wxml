@@ -1,0 +1,19 @@
+<!--pages/collectlist/collectlist.wxml-->
+<view >
+  <image src='/static/img/reading.svg' class='loading' wx:if="{{isLoading}}"></image>
+  <view class='collect-container' wx:else>
+    <view class='collect-item' wx:for="{{collectBooks}}" wx:key="{{index}}">
+      <view class='collect-list' data-id="{{item.book._id}}" bindtap="{{select ? '' : 'jumpBook'}}" bindlongtap='delCollect'>
+        <view class="{{select ? 'bookdel' : ''}}" wx:if="{{select}}">
+          <image src='/static/img/delete.png' bindtap='deleteBook' data-id="{{item.book._id}}" data-index="{{index}}"></image>
+        </view>
+        <view class='book-img'>
+          <image src='{{item.book.img}}'></image>
+        </view>
+        <view class='book-name'>
+          <text>{{item.book.title}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
