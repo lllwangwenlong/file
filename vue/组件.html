@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+    <div id="app">
+        <h1>父组件的值是{{num1}}</h1>
+        <button @click="handleAdd">++++</button>
+        <!--<my-btn v-bind:my-num="num1" -->
+                <!--@reduce-parent="handleReduce" -->
+                <!--@add-parent="handleAdd">-->
+        <!--</my-btn>-->
+        <my-btn v-bind:value="num1" @input="handleChange"></my-btn>
+    </div>
+</body>
+<script src="./vue.js"></script>
+<script>
+    // const myBtn = {
+    //     template:  `
+    //         <button class="btn">
+    //         <i class="triangle"></i> <slot></slot>
+    //         </button>
+    //     `
+    // }
+    //
+    // const container = {
+    //     template:  `
+    //         <h1>
+    //             我是container
+    //             <my-btn>我的按钮4</my-btn>
+    //         </h1>
+    //     `,
+    //     components:{
+    //         myBtn
+    //     }
+    // }
+    //
+    // Vue.component("my-container",container)
+
+    // const myContainer = {
+    //     template:`
+    //         <div>
+    //             <button @click="handleAdd">+</button>
+    //             <strong>{{num}}</strong>
+    //             <button @click="handleReduce">-</button>
+    //         </div>
+    //     `,
+    //     data(){
+    //         return{
+    //             num:0
+    //         }
+    //     },
+    //     methods:{
+    //         handleAdd(){
+    //             this.num++
+    //         },
+    //         handleReduce(){
+    //             this.num--
+    //         }
+    //     }
+    // }
+
+    // const app = new Vue({
+    //     components:{
+    //         myContainer
+    //     },
+    //     el:"#app",
+    //     data:{
+    //
+    //     },
+    //     methods:{
+    //
+    //     }
+    // })
+
+    // const myBtn = {
+    //     props:{
+    //         text:{
+    //             type:String
+    //         }
+    //     },
+    //     data(){
+    //         return{
+    //             child:"来自子组件内部的值"
+    //         }
+    //     },
+    //     template:`
+    //     <button class="btn" @click="toFather">{{text}}</button>
+    //     `,
+    //     methods:{
+    //         toFather(){
+    //             this.$emit("to-you",this.child)
+    //         }
+    //     }
+    // }
+    //
+    // Vue.component("my-btn",myBtn)
+    //
+    // const app = new Vue({
+    //     el:"#app",
+    //     data:{
+    //         myText:"我的按钮"
+    //     },
+    //     methods:{
+    //         handleText(){
+    //             this.myText = "你的按钮"
+    //         },
+    //         handChild(child){
+    //             console.log(child)
+    //         }
+    //     }
+    // })
+
+    const myBtn={
+        props:{
+            "my-num":{
+                type:Number
+            },
+            value:{
+                type:Number
+            }
+        },
+        template:`
+            <div>
+                <button @click="handleAdd">+</button>
+                <strong>{{num}}</strong>
+                <button @click="handleReduce">-</button>
+            </div>
+        `,
+        data(){
+            return{
+                // num:this.myNum
+                num:this.value
+            }
+        },
+        methods:{
+            handleAdd() {
+                // this.num++
+                this.$emit("add-parent")
+            },
+            handleReduce(){
+                this.num--
+                // this.$emit("reduce-parent")
+                this.$emit("input",this.num)
+            }
+        },
+        watch:{
+            myNum(val){
+                this.num = val
+            },
+            value(val){
+                this.num = val
+            }
+        }
+    }
+
+    Vue.component("my-btn",myBtn)
+
+    const app = new Vue({
+        el:"#app",
+        data:{
+            num1:10
+        },
+        methods:{
+            handleAdd(){
+                this.num1++
+            },
+            handleReduce(){
+                this.num1--
+            },
+            handleChange(value){
+                this.num1=value
+            }
+        }
+    })
+</script>
+</html>

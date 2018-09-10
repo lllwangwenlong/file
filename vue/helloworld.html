@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+<div id = "app">
+    <input type="text" v-model="msg">
+    <h1 v-text="msg"></h1>
+    <div class="box" v-if="isShow"></div>
+    <button @click="handleshow">切换显示</button>
+    <ol>
+        <li v-for="(item,index) in todos" v-bind:class="{done: item.isDone}" @click="toggleTodo(index)">
+            <input type="checkbox" v-bind:checked="item.isDone"> {{item.todo}}
+        </li>
+    </ol>
+    用户名: <input type="text" v-model="username">
+    <br>
+    密码:   <input type="text" v-model="password">
+    <br>
+    <button @click="showForm">显示用户名密码</button>
+    <br>
+    first-name: <input type="text" v-model="firstName">
+    <br>
+    last-name: <input type="text" v-model="lastName">
+    <br>
+    <h3>你的全名是:{{fullName}}</h3>
+</div>
+</body>
+<script src="./vue.js"></script>
+<script>
+    let app = new Vue({
+        el:"#app",
+        data:{
+            msg:"hello world",
+            isShow:true,
+            todos:[
+                {todo:"吃饭",isDone:false},
+                {todo:"睡觉",isDone:false},
+                {todo:"打豆豆",isDone:true}
+            ],
+            username:"",
+            password:"",
+            firstName:"",
+            lastName:"",
+        },
+        methods:{
+            handleshow(){
+                this.isShow = !this.isShow
+            },
+            showForm() {
+                alert(this.username + this.password)
+            },
+            toggleTodo(index){
+                this.todos[index].isDone = !this.todos[index].isDone
+            }
+        },
+        // watch:{
+        //     firstName(newvalue,oldvalue){
+        //         this.fullName = newvalue + this.lastName
+        //     },
+        //     lastName(newvalue,oldvalue){
+        //         this.fullName = this.firstName + newvalue
+        //     }
+        // },
+        computed:{
+            fullName(){
+                return this.firstName + this.lastName
+            }
+        }
+    })
+</script>
+</html>

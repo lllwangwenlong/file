@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+    <div id="app">
+        <!--姓名:<input type="text" v-model="username">-->
+        <!--<br>-->
+        <!--ID:  <input type="text" v-model="userid" @keyup.enter="add">-->
+        <!--<br>-->
+        <!--<button @click="add">添加</button>-->
+        <input type="text" v-model="filterText">
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>姓名</th>
+                <th>入学时间</th>
+                <th>操作</th>
+            </tr>
+            <tr v-for="(item,index) in filterArr">
+                <td>{{item.id}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.time}}</td>
+                <td><a href="javascript:;" @click="del">删除</a></td>
+            </tr>
+        </table>
+    </div>
+</body>
+<script src="./vue.js"></script>
+<script>
+    const app = new Vue({
+        el:"#app",
+        data:{
+            arr:[
+                {
+                    name:"aaa",
+                    id:1,
+                    time:new Date(),
+                },
+                {
+                    name:"bbb",
+                    id:2,
+                    time:new Date(),
+                },
+                {
+                    name:"abc",
+                    id:2,
+                    time:new Date(),
+                }
+            ],
+            // username:"",
+            // userid:"",
+            filterText:"",
+        },
+        computed:{
+            filterArr(){
+                if(!this.filterText){
+                    return this.arr
+                }else{
+                    return this.arr.filter(item => (item.name.indexOf(this.filterText) != -1))
+                }
+            }
+        },
+        methods:{
+            del(index){
+                this.arr.splice(index,1)
+            },
+            add(){
+                this.arr.push({
+                        name:this.username,
+                        id:this.userid,
+                        time:new Date()
+                    }),
+                this.username="",
+                this.userid=""
+            }
+        }
+    })
+</script>
+</html>
