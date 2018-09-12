@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+<script>
+    function searchQuery() {
+        let queryObj = {}
+        let queryString = location.search.substr(1)
+        let queryArr = queryString.split('&')
+        queryArr.forEach(item => {
+            let key = item.split('=')[0]
+            let value = item.split('=')[1]
+            queryObj[key] = value
+        })
+        return queryObj
+    }
+    let arr = searchQuery()
+    console.log(arr)
+</script>
+</html>

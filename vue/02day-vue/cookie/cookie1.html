@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+<script>
+    // let date = new Date()
+    // date.setMinutes(7)
+    // let dateStr = date.toUTCString()
+    // console.log(dateStr)
+    //
+    // document.cookie = "name=wang"
+    // document.cookie = "sex=man;expires="+ dateStr
+    // console.log(document.cookie)
+
+    function getCookie() {
+        let obj = {}
+        let cookieString = document.cookie
+        let cookieArr = cookieString.split(';')
+        cookieArr.forEach(item => {
+            let arr = item.split('=')
+            let key = arr[0].trim()
+            let value = arr[1].trim()
+            obj[key] = value
+        })
+        return obj
+    }
+
+    //需求 假设用户传来的expires是秒
+    function setCookie(key, value, expires) {
+        if (!expires) {
+            document.cookie = `${key}=${value}`
+        }else {
+            let date = new Date()
+            let unix = date.getTime()
+            unix = expires*1000 + unix
+
+            let newDate = new Date(unix).toUTCString()
+            document.cookie = `${key}=${value};expires=${newDate}`
+        }
+    }
+
+    function removeCookie(key) {
+        let value = ''
+        let date = new Date().getTime()
+        date = date - 1000
+        let dateStr = new Date(date).toUTCString()
+        document.cookie = `${key}=${value}; c`
+    }
+
+    // setCookie('food','beef')
+    // setCookie('tree','yangshu','60')
+    setCookie('action', 'yaoming')
+
+    let cookieObj = getCookie()
+
+
+    removeCookie('action')
+    console.log(cookieObj)
+</script>
+</html>

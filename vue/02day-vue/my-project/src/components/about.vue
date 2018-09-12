@@ -10,9 +10,6 @@
 <script>
     export default {
         name: "about",
-        created() {
-          console.log(this.$route.params.id)
-        }
     }
 </script>
 
