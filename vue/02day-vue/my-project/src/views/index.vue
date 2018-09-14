@@ -8,6 +8,7 @@
           <li><router-link :to="{name: 'home1'}">首页</router-link></li>
           <li><router-link :to="{name: 'about1',params:{id:'998'}}">详情</router-link></li>
           <li><router-link :to="{name: 'login1'}">登陆</router-link></li>
+          <li><router-link :to="{name: 'shop'}">购物</router-link></li>
         </ul>
       </div>
       <div class="content">
@@ -54,6 +55,6 @@
 
   .content {
     padding-left: 200px;
-    background-color: #f00;
+    background-color: #f1f1f1;
   }
 </style>

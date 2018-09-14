@@ -25,10 +25,10 @@
         },
         methods: {
           handleSubmit() {
-            axios.post('http://localhost:3000/login',{username:this.username,password:this.password}).then(res => {
+            axios.post('http://localhost:3001/login',{username:this.username,password:this.password}).then(res => {
               if(res.data.code == 200){
                 alert('登陆成功')
-                this.$router.push('/')
+                this.$router.push('/nesting/home')
               }else{
                 alert('登陆失败')
               }

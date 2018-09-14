@@ -5,7 +5,41 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <button id="btn">发送请求</button>
+    <button id="btn1">请求server1</button>
+    <button id="btn2">插件请求server1</button>
+    <button id="btn3">Json-bird请求线上数据</button>
   </body>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script>
+    let btn = document.getElementById("btn")
+    let btn1 = document.getElementById("btn1")
+    let btn2 = document.getElementById("btn2")
+    let btn3 = document.getElementById("btn3")
+
+    btn.onclick = function () {
+        axios.get('/getMsg').then(res => {
+            console.log(res)
+        })
+    }
+    btn1.onclick = function () {
+        axios.get('/proxy').then(res => {
+            console.log(res)
+        })
+    }
+    btn2.onclick = function () {
+        axios.get('/api/server1').then(res => {
+            console.log(res)
+        })
+    }
+    btn3.onclick = function () {
+        axios.get('https://bird.ioliu.cn/v1',
+                  {
+                   url: 'https://book.douban.com/subject/27138720/?icn=index-editionrecommend'
+                  }).then(res => {
+                      console.log(res)
+        })
+    }
+
+  </script>
 </html>

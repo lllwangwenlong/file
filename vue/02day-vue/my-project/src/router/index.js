@@ -63,6 +63,14 @@ let router =  new Router({
             title: '登录'
           }
         },
+        {
+          path: 'shop',
+          name: 'shop',
+          component: () => import('../components/shop'),
+          meta: {
+            title: '购物'
+          }
+        },
       ]
     }
   ]
