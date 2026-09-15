@@ -9,6 +9,7 @@
           <li><router-link :to="{name: 'about1',params:{id:'998'}}">详情</router-link></li>
           <li><router-link :to="{name: 'login1'}">登陆</router-link></li>
           <li><router-link :to="{name: 'shop'}">购物</router-link></li>
+          <li><router-link :to="{name: 'todo'}">待办</router-link></li>
         </ul>
       </div>
       <div class="content">
