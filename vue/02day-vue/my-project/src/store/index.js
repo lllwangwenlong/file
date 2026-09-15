@@ -6,7 +6,8 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
     count: 0,
-    price: 30
+    price: 30,
+    todos: []
   },
   mutations: {
     'ADD_COUNT' (state) {
@@ -17,6 +18,9 @@ const store = new Vuex.Store({
     },
     'CHANGE_COUNT' (state, payload) {
       state.count = payload;
+    },
+    'ADD_TODO' (state, { name, description }) {
+      state.todos.push({ id: Date.now(), name, description })
     }
   },
   getters: {

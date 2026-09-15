@@ -71,6 +71,14 @@ let router =  new Router({
             title: '购物'
           }
         },
+        {
+          path: 'todo',
+          name: 'todo',
+          component: () => import('../components/Todo'),
+          meta: {
+            title: '待办'
+          }
+        },
       ]
     }
   ]
