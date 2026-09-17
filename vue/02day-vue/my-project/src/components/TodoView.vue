@@ -30,7 +30,7 @@ export default {
         this.loading = true
         await this.createTodo({ name, description })
       } catch (e) {
-        alert('创建失败：' + (e.response?.data?.message || e.message))
+        alert('创建失败：' + ((e.response && e.response.data && e.response.data.message) || e.message))
       } finally {
         this.loading = false
       }
