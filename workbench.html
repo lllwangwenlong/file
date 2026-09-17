@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Todo — 可视化内容清单</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f5f6f8; color: #333; line-height: 1.6;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: #fff; border-bottom: 1px solid #e8e8e8;
+    padding: 28px 32px; max-width: 1060px; margin: 0 auto 0;
+  }
+  .header h1 { font-size: 22px; font-weight: 600; color: #1a1a1a; }
+  .header .meta { margin-top: 6px; font-size: 13px; color: #999; }
+  .header .badge {
+    display: inline-block; background: #409eff; color: #fff; font-size: 11px;
+    padding: 2px 8px; border-radius: 3px; margin-left: 8px; vertical-align: 1px;
+  }
+
+  /* ── TOC Bar ── */
+  .toc {
+    max-width: 1060px; margin: 16px auto 0; padding: 0 32px;
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .toc a {
+    display: inline-block; padding: 6px 14px; font-size: 13px;
+    background: #fff; border: 1px solid #e0e0e0; border-radius: 4px;
+    color: #555; text-decoration: none; transition: .15s;
+  }
+  .toc a:hover { border-color: #409eff; color: #409eff; }
+
+  /* ── Main Content ── */
+  .main { max-width: 1060px; margin: 20px auto 48px; padding: 0 32px; }
+
+  /* ── Section ── */
+  .section { margin-bottom: 28px; }
+  .section-title {
+    font-size: 17px; font-weight: 600; color: #1a1a1a;
+    padding: 14px 20px; background: #fff; border-left: 4px solid #409eff;
+    border-radius: 0 6px 6px 0; display: flex; align-items: center; gap: 10px;
+  }
+  .section-title .dot { display: none; }
+
+  /* ── Card ── */
+  .card {
+    background: #fff; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    margin-top: 12px; overflow: hidden;
+  }
+  .card-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 20px; background: #fafbfc; border-bottom: 1px solid #f0f0f0;
+    cursor: pointer; user-select: none;
+  }
+  .card-header:hover { background: #f3f6fa; }
+  .card-id {
+    flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff;
+  }
+  .card-id.s1  { background: #409eff; }
+  .card-id.s2  { background: #67c23a; }
+  .card-id.s3  { background: #67c23a; }
+  .card-id.s4  { background: #e6a23c; }
+  .card-id.s5  { background: #409eff; }
+  .card-id.s6  { background: #f56c6c; }
+  .card-id.s7  { background: #909399; }
+  .card-id.s8  { background: #409eff; }
+  .card-title-row { flex: 1; min-width: 0; }
+  .card-title {
+    font-size: 14px; font-weight: 600; color: #1a1a1a;
+  }
+  .card-duration {
+    font-size: 11px; color: #999; margin-top: 2px;
+  }
+  .card-arrow {
+    font-size: 12px; color: #bbb; transition: .2s;
+  }
+  .card.open .card-arrow { transform: rotate(90deg); }
+
+  .card-body { display: none; padding: 18px 20px; }
+  .card.open .card-body { display: block; }
+
+  /* ── Info Grid ── */
+  .info-grid {
+    display: grid; grid-template-columns: 120px 1fr;
+    gap: 8px 16px; font-size: 13px;
+  }
+  .info-grid .label { color: #999; text-align: right; }
+  .info-grid .value { color: #333; }
+
+  /* ── Tag Row ── */
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .tag {
+    display: inline-block; font-size: 11px; padding: 3px 10px;
+    border-radius: 3px; font-weight: 500;
+  }
+  .tag-blue   { background: #ecf5ff; color: #409eff; }
+  .tag-green  { background: #f0f9eb; color: #67c23a; }
+  .tag-orange { background: #fdf6ec; color: #e6a23c; }
+  .tag-red    { background: #fef0f0; color: #f56c6c; }
+  .tag-gray   { background: #f4f4f5; color: #909399; }
+
+  /* ── Source Files ── */
+  .source-block { margin-top: 14px; }
+  .source-block .stitle {
+    font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: .5px;
+    margin-bottom: 6px;
+  }
+  .source-list {
+    display: flex; flex-wrap: wrap; gap: 4px;
+  }
+  .source-item {
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 12px; background: #f7f8fa; padding: 3px 10px;
+    border-radius: 3px; border: 1px solid #eee; color: #555;
+  }
+
+  /* ── Animation Desc ── */
+  .anim-desc {
+    margin-top: 10px; font-size: 12px; color: #777;
+    padding: 8px 12px; background: #fdf6ec; border-radius: 4px;
+    border-left: 3px solid #e6a23c;
+  }
+
+  /* ── Summary Table ── */
+  .summary-table {
+    width: 100%; border-collapse: collapse; font-size: 13px;
+    margin-top: 8px;
+  }
+  .summary-table th {
+    background: #fafbfc; text-align: left; padding: 10px 14px;
+    font-weight: 600; color: #555; border-bottom: 2px solid #f0f0f0;
+    font-size: 12px;
+  }
+  .summary-table td {
+    padding: 10px 14px; border-bottom: 1px solid #f5f5f5;
+  }
+  .summary-table tr:hover td { background: #fafbfc; }
+  .bar-cell {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .bar {
+    height: 6px; border-radius: 3px; background: #409eff;
+    min-width: 2px;
+  }
+
+  /* ── File Tree ── */
+  .file-tree {
+    font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+    font-size: 12px; color: #555; line-height: 1.8;
+    padding: 14px 18px; background: #fafbfc; border-radius: 4px;
+    border: 1px solid #eee;
+  }
+  .file-tree .dir { color: #409eff; font-weight: 600; }
+  .file-tree .comment { color: #bbb; }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px;
+    padding: 10px 20px; color: #888;
+  }
+  .legend span { display: flex; align-items: center; gap: 4px; }
+  .legend .dot { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+  /* ── Threshold Banner ── */
+  .gate-banner {
+    background: linear-gradient(135deg, #409eff, #337ecc); color: #fff;
+    padding: 16px 24px; border-radius: 6px; margin-bottom: 24px;
+    font-size: 14px; display: flex; align-items: center; gap: 12px;
+  }
+  .gate-banner strong { font-size: 15px; }
+  .gate-banner .icon { font-size: 22px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📋 Daily Todo — 可视化内容清单 <span class="badge">workbench</span></h1>
+  <p class="meta">
+    版本 v1.0 · 2026-09-17 · 8 个场景 · 目标用户：内部用户
+    · 路由 /todos · history 模式
+  </p>
+</div>
+
+<div class="toc">
+  <a href="#scenes">📖 场景清单</a>
+  <a href="#duration">⏱ 时长分布</a>
+  <a href="#files">📁 源文件映射</a>
+  <a href="#summary">📊 结构小结</a>
+</div>
+
+<div class="main">
+
+  <!-- ═══ Gate Banner ═══ -->
+  <div class="gate-banner" id="scenes">
+    <span class="icon">🚦</span>
+    <div>
+      <strong>结构门禁</strong> ·
+      请在浏览器中确认以下 8 个场景的结构理解是否与你的预期一致。<br>
+      <span style="font-size:12px;opacity:0.85">不一致的地方请指出，结构确认通过后才会进入编码阶段。</span>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  SECTION: 场景清单                      -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-title">📖 场景清单（8 个）</div>
+
+    <!-- S1 -->
+    <div class="card open">
+      <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="card-id s1">S1</div>
+        <div class="card-title-row">
+          <div class="card-title">首次访问空列表</div>
+          <div class="card-duration">⏱ 约 1.3s · 用户 1s + 系统 ≤0.3s</div>
+        </div>
+        <div class="card-arrow">▶</div>
+      </div>
+      <div class="card-body">
+        <div class="info-grid">
+          <span class="label">触发方式</span><span class="value">导航至 <code>/todos</code>（首次访问）</span>
+          <span class="label">用户意图</span><span class="value">查看待办事项，发现列表为空</span>
+          <span class="label">关键交互</span><span class="value">看到空状态引导文案</span>
+          <span class="label">预期结果</span><span class="value">了解当前无待办，准备创建</span>
+          <span class="label">数据流</span><span class="value">GET /todos → 返回空数组 → 渲染空状态</span>
+          <span class="label">状态表现</span><span class="value">列表区居中灰色文字「暂无待办事项，请在上方添加。」</span>
+        </div>
+
+        <div class="anim-desc">
+          🎬 <strong>动画/反馈</strong>：页面加载时 Nprogress 进度条（路由级已有）；空状态文字无入场动画（极简）。
+        </div>
+
+        <div class="tag-row">
+          <span class="tag tag-blue">辅助路径 5%</span>
+          <span class="tag tag-gray">空状态</span>
+          <span class="tag tag-gray">GET</span>
+        </div>
+
+        <div class="source-block">
+          <div class="stitle">📁 对应源文件</div>
+          <div class="source-list">
+            <span class="source-item">src/router/index.js</span>
+            <span class="source-item">src/views/TodoView.vue</span>
+            <span class="source-item">src/components/TodoList.vue</span>
+            <span class="source-item">src/store/modules/todos.js</span>
+            <span class="source-item">src/api/todos.js</span>
+            <span class="source-item">server/index.js</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S2 -->
+    <div class="card open">
+      <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="card-id s2">S2</div>
+        <div class="card-title-row">
+          <div class="card-title">快速创建事项（仅名称）</div>
+          <div class="card-duration">⏱ 约 3.4s · 用户 3s + 系统 ≤0.4s</div>
+        </div>
+        <div class="card-arrow">▶</div>
+      </div>
+      <div class="card-body">
+        <div class="info-grid">
+          <span class="label">触发方式</span><span class="value">在名称输入框填写内容 → 回车 或 点击「添加」</span>
+          <span class="label">用户意图</span><span class="value">用最少步骤记录一件事</span>
+          <span class="label">关键交互</span><span class="value">仅填名称，描述留空，回车提交</span>
+          <span class="label">预期结果</span><span class="value">列表即时追加新条目，表单清空</span>
+          <span class="label">数据流</span><span class="value">POST /todos { name, description:"" } → 返回 Todo → commit ADD_TODO</span>
+          <span class="label">状态表现</span><span class="value">创建中显示灰色「加载中...」；成功：表单清空 + 列表追加</span>
+        </div>
+
+        <div class="anim-desc">
+          🎬 <strong>动画/反馈</strong>：按钮 hover 背景过渡 #409eff→#337ecc (0.2s)；输入框聚焦边框过渡 (0.2s)；新条目即时追加（无动画，极简）。
+        </div>
+
+        <div class="tag-row">
+          <span class="tag tag-green">核心路径 80%</span>
+          <span class="tag tag-green">POST</span>
+          <span class="tag tag-blue">乐观追加</span>
+        </div>
+
+        <div class="source-block">
+          <div class="stitle">📁 对应源文件</div>
+          <div class="source-list">
+            <span class="source-item">src/views/TodoView.vue</span>
+            <span class="source-item">src/components/TodoForm.vue</span>
+            <span class="source-item">src/components/TodoList.vue</span>
+            <span class="source-item">src/store/modules/todos.js</span>
+            <span class="source-item">src/api/todos.js</span>
+            <span class="source-item">server/index.js</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S3 -->
+    <div class="card open">
+      <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="card-id s3">S3</div>
+        <div class="card-title-row">
+          <div class="card-title">创建含描述的事项</div>
+          <div class="card-duration">⏱ 约 8.2s · 用户 8s + 系统 ≤0.2s</div>
+        </div>
+        <div class="card-arrow">▶</div>
+      </div>
+      <div class="card-body">
+        <div class="info-grid">
+          <span class="label">触发方式</span><span class="value">填写名称 + 描述 → 点击「添加」</span>
+          <span class="label">用户意图</span><span class="value">完整记录事项细节</span>
+          <span class="label">关键交互</span><span class="value">输入名称和描述，点击提交</span>
+          <span class="label">预期结果</span><span class="value">列表追加条目，名称和描述均展示</span>
+          <span class="label">数据流</span><span class="value">POST /todos { name, description:"…" } → 返回 Todo → commit ADD_TODO</span>
+          <span class="label">状态表现</span><span class="value">创建中「加载中...」；成功后表单清空、列表追加含描述的新条目</span>
+        </div>
+
+        <div class="anim-desc">
+          🎬 <strong>动画/反馈</strong>：同 S2。描述在列表项中以 13px #777 灰色展示，名称下方 4px 间距。
+        </div>
+
+        <div class="tag-row">
+          <span class="tag tag-green">核心路径 80%</span>
+          <span class="tag tag-green">POST</span>
+        </div>
+
+        <div class="source-block">
+          <div class="stitle">📁 对应源文件</div>
+          <div class="source-list">
+            <span class="source-item">src/views/TodoView.vue</span>
+            <span class="source-item">src/components/TodoForm.vue</span>
+            <span class="source-item">src/components/TodoList.vue</span>
+            <span class="source-item">src/store/modules/todos.js</span>
+            <span class="source-item">src/api/todos.js</span>
+            <span class="source-item">server/index.js</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S4 -->
+    <div class="card open">
+      <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="card-id s4">S4</div>
+        <div class="card-title-row">
+          <div class="card-title">创建后继续添加（连续录入）</div>
+          <div class="card-duration">⏱ 约 3.2s × N · 用户 3s × N + 系统 ≤0.2s × N</div>
+        </div>
+        <div class="card-arrow">▶</div>
+      </div>
+      <div class="card-body">
+        <div class="info-grid">
+          <span class="label">触发方式</span><span class="value">提交成功后表单自动清空，用户继续填写下一条</span>
+          <span class="label">用户意图</span><span class="value">连续录入多条事项</span>
+          <span class="label">关键交互</span><span class="value">连续 S2/S3 操作</span>
+          <span class="label">预期结果</span><span class="value">列表持续累加，无阻塞感</span>
+          <span class="label">数据流</span><span class="value">循环 POST /todos → 每次 ADD_TODO → 列表即时增长</span>
+          <span class="label">状态表现</span><span class="value">每次成功后表单清空、焦点回到名称输入框</span>
+        </div>
+
+        <div class="anim-desc">
+          🎬 <strong>动画/反馈</strong>：无额外动画。连续创建无阻塞——后端内存操作极快，表单清空即就绪。
+        </div>
+
+        <div class="tag-row">
+          <span class="tag tag-green">核心路径 80%</span>
+          <span class="tag tag-orange">连续操作</span>
+        </div>
+
+        <div class="source-block">
+          <div class="stitle">📁 对应源文件</div>
+          <div class="source-list">
+            <span class="source-item">src/views/TodoView.vue</span>
+            <span class="source-item">src/components/TodoForm.vue</span>
+            <span class="source-item">src/store/modules/todos.js</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S5 -->
+    <div class="card open">
+      <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="card-id s5">S5</div>
+        <div class="card-title-row">
+          <div class="card-title">访问已有数据的列表</div>
+          <div class="card-duration">⏱ 约 2.3s · 用户 2s + 系统 ≤0.3s</div>
+        </div>
+        <div class="card-arrow">▶</div>
+      </div>
+      <div class="card-body">
+        <div class="info-grid">
+          <span class="label">触发方式</span><span class="value">导航至 <code>/todos</code>（非首次访问）</span>
+          <span class="label">用户意图</span><span class="value">回顾已记录的待办事项</span>
+          <span class="label">关键交互</span><span class="value">页面加载时自动拉取列表</span>
+          <span class="label">预期结果</span><span class="value">列表按创建时间倒序展示</span>
+          <span class="label">数据流</span><span class="value">GET /todos → 返回 Todo[] → commit SET_TODOS → 倒序渲染</span>
+          <span class="label">状态表现</span><span class="value">加载中「加载中...」；有数据则渲染卡片列表</span>
+        </div>
+
+        <div class="anim-desc">
+          🎬 <strong>动画/反馈</strong>：Nprogress 路由进度条；列表无入场动画，直接渲染（极简）。
+        </div>
+
+        <div class="tag-row">
+          <span class="tag tag-blue">辅助路径 15%</span>
+          <span class="tag tag-gray">GET</span>
+          <span class="tag tag-gray">倒序排列</span>
+        </div>
+
+        <div class="source-block">
+          <div class="stitle">📁 对应源文件</div>
+          <div class="source-list">
+            <span class="source-item">src/views/TodoView.vue</span>
+            <span class="source-item">src/components/TodoList.vue</span>
+            <span class="source-item">src/store/modules/todos.js</span>
+            <span class="source-item">src/api/todos.js</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S6 -->
+    <div class="card open">
+      <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="card-id s6">S6</div>
+        <div class="card-title-row">
+          <div class="card-title">名称为空校验</div>
+          <div class="card-duration">⏱ 约 1s · 用户 1s + 系统 0s（前端拦截）</div>
+        </div>
+        <div class="card-arrow">▶</div>
+      </div>
+      <div class="card-body">
+        <div class="info-grid">
+          <span class="label">触发方式</span><span class="value">未填名称直接提交（点击或回车）</span>
+          <span class="label">用户意图</span><span class="value">误触或试探性提交</span>
+          <span class="label">关键交互</span><span class="value">点击「添加」或回车</span>
+          <span class="label">预期结果</span><span class="value">前端阻止提交，显示「事项名称不能为空」（红色）</span>
+          <span class="label">数据流</span><span class="value">无请求发出（前端拦截）</span>
+          <span class="label">状态表现</span><span class="value">按钮保持 disabled (cursor:not-allowed)；回车触发显示红色错误提示</span>
+        </div>
+
+        <div class="anim-desc">
+          🎬 <strong>动画/反馈</strong>：按钮 disabled 态背景变浅 #a0cfff，cursor: not-allowed；错误提示红色 #e74c3c，表单组下方条件渲染出现。
+        </div>
+
+        <div class="tag-row">
+          <span class="tag tag-red">边缘路径 5%</span>
+          <span class="tag tag-red">前端校验</span>
+          <span class="tag tag-gray">无请求</span>
+        </div>
+
+        <div class="source-block">
+          <div class="stitle">📁 对应源文件</div>
+          <div class="source-list">
+            <span class="source-item">src/components/TodoForm.vue</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S7 -->
+    <div class="card open">
+      <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="card-id s7">S7</div>
+        <div class="card-title-row">
+          <div class="card-title">后端不可用降级</div>
+          <div class="card-duration">⏱ 约 1.5s · 用户 1s + 系统 ≤0.5s</div>
+        </div>
+        <div class="card-arrow">▶</div>
+      </div>
+      <div class="card-body">
+        <div class="info-grid">
+          <span class="label">触发方式</span><span class="value">后端未启动时访问页面</span>
+          <span class="label">用户意图</span><span class="value">正常打开页面</span>
+          <span class="label">关键交互</span><span class="value">页面静默渲染，GET 失败不阻断 UI</span>
+          <span class="label">预期结果</span><span class="value">表单可用，列表为空；创建时弹出友好错误提示</span>
+          <span class="label">数据流</span><span class="value">GET /todos → 网络错误（静默）→ 空列表；POST /todos → 网络错误 → alert()</span>
+          <span class="label">状态表现</span><span class="value">页面正常渲染（表单 + 空列表），创建失败弹 alert</span>
+        </div>
+
+        <div class="anim-desc">
+          🎬 <strong>动画/反馈</strong>：GET 失败无视觉反馈（静默降级）；POST 失败弹出浏览器原生 alert()——MVP 方案。
+        </div>
+
+        <div class="tag-row">
+          <span class="tag tag-red">边缘路径 5%</span>
+          <span class="tag tag-gray">降级</span>
+          <span class="tag tag-gray">错误处理</span>
+        </div>
+
+        <div class="source-block">
+          <div class="stitle">📁 对应源文件</div>
+          <div class="source-list">
+            <span class="source-item">src/views/TodoView.vue</span>
+            <span class="source-item">src/store/modules/todos.js</span>
+            <span class="source-item">src/api/todos.js</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- S8 -->
+    <div class="card open">
+      <div class="card-header" onclick="this.parentElement.classList.toggle('open')">
+        <div class="card-id s8">S8</div>
+        <div class="card-title-row">
+          <div class="card-title">页面刷新保持</div>
+          <div class="card-duration">⏱ 约 1.3s · 用户 1s + 系统 ≤0.3s</div>
+        </div>
+        <div class="card-arrow">▶</div>
+      </div>
+      <div class="card-body">
+        <div class="info-grid">
+          <span class="label">触发方式</span><span class="value">浏览器刷新 <code>/todos</code></span>
+          <span class="label">用户意图</span><span class="value">确认数据持久性</span>
+          <span class="label">关键交互</span><span class="value">刷新后自动 GET 拉取</span>
+          <span class="label">预期结果</span><span class="value">之前创建的事项仍在列表中（后端内存保持）</span>
+          <span class="label">数据流</span><span class="value">GET /todos → 返回 Todo[]（后端内存数组未丢失）→ commit SET_TODOS</span>
+          <span class="label">状态表现</span><span class="value">同 S5——加载中→列表渲染</span>
+        </div>
+
+        <div class="anim-desc">
+          🎬 <strong>动画/反馈</strong>：同 S5。依赖后端内存数组，服务重启后数据丢失（已知约束）。
+        </div>
+
+        <div class="tag-row">
+          <span class="tag tag-blue">数据持久性验证</span>
+          <span class="tag tag-gray">GET</span>
+          <span class="tag tag-orange">已知约束：内存存储</span>
+        </div>
+
+        <div class="source-block">
+          <div class="stitle">📁 对应源文件</div>
+          <div class="source-list">
+            <span class="source-item">src/views/TodoView.vue</span>
+            <span class="source-item">src/store/modules/todos.js</span>
+            <span class="source-item">src/api/todos.js</span>
+            <span class="source-item">server/index.js</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  SECTION: 时长分布                      -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="section" id="duration">
+    <div class="section-title">⏱ 时长分布与注意力占比</div>
+    <div class="card" style="display:block;">
+      <div class="card-body" style="display:block;">
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th>场景</th><th>用户操作</th><th>系统响应</th><th>总耗时</th><th>注意力占比</th><th>路径分类</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>S1</strong> 首次空列表</td>
+              <td>1s</td><td>≤0.3s</td><td>1.3s</td>
+              <td><div class="bar-cell"><div class="bar" style="width:16px;"></div>8%</div></td>
+              <td><span class="tag tag-blue">辅助 5%</span></td>
+            </tr>
+            <tr>
+              <td><strong>S2</strong> 快速创建</td>
+              <td>3s</td><td>≤0.4s</td><td>3.4s</td>
+              <td><div class="bar-cell"><div class="bar" style="width:42px;"></div>21%</div></td>
+              <td><span class="tag tag-green">核心 80%</span></td>
+            </tr>
+            <tr>
+              <td><strong>S3</strong> 含描述创建</td>
+              <td>8s</td><td>≤0.2s</td><td>8.2s</td>
+              <td><div class="bar-cell"><div class="bar" style="width:100px;"></div>50%</div></td>
+              <td><span class="tag tag-green">核心 80%</span></td>
+            </tr>
+            <tr>
+              <td><strong>S4</strong> 连续创建</td>
+              <td>3s×N</td><td>≤0.2s×N</td><td>3.2N s</td>
+              <td>—</td>
+              <td><span class="tag tag-green">核心 80%</span></td>
+            </tr>
+            <tr>
+              <td><strong>S5</strong> 已有数据访问</td>
+              <td>2s</td><td>≤0.3s</td><td>2.3s</td>
+              <td><div class="bar-cell"><div class="bar" style="width:28px;"></div>14%</div></td>
+              <td><span class="tag tag-blue">辅助 15%</span></td>
+            </tr>
+            <tr>
+              <td><strong>S6</strong> 空名校验</td>
+              <td>1s</td><td>0s</td><td>1s</td>
+              <td><div class="bar-cell"><div class="bar" style="width:12px;"></div>6%</div></td>
+              <td><span class="tag tag-red">边缘 5%</span></td>
+            </tr>
+            <tr>
+              <td><strong>S7</strong> 后端降级</td>
+              <td>1s</td><td>≤0.5s</td><td>1.5s</td>
+              <td>—</td>
+              <td><span class="tag tag-red">边缘 5%</span></td>
+            </tr>
+            <tr>
+              <td><strong>S8</strong> 刷新保持</td>
+              <td>1s</td><td>≤0.3s</td><td>1.3s</td>
+              <td>—</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top:16px; display:flex; gap:24px; flex-wrap:wrap; font-size:13px;">
+          <div>
+            <div style="font-weight:600; margin-bottom:6px;">🟢 核心路径（80% 用户时间）</div>
+            <div style="color:#777;">S2 快速创建 + S3 含描述创建 + S4 连续创建<br>
+            表单区域停留最长 → 表单设计必须极简、无干扰</div>
+          </div>
+          <div>
+            <div style="font-weight:600; margin-bottom:6px;">🔵 辅助路径（15% 用户时间）</div>
+            <div style="color:#777;">S5 已有数据访问<br>列表可读性是次要优化目标</div>
+          </div>
+          <div>
+            <div style="font-weight:600; margin-bottom:6px;">🔴 边缘路径（5% 用户时间）</div>
+            <div style="color:#777;">S1 空状态 + S6 校验 + S7 降级<br>低频但直接影响信任感</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  SECTION: 源文件映射                    -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="section" id="files">
+    <div class="section-title">📁 源文件映射 & 组件树</div>
+
+    <!-- File Tree -->
+    <div class="card" style="display:block;">
+      <div class="card-body" style="display:block;">
+        <div class="file-tree">
+<span class="dir">src/</span><br>
+├── <span class="dir">views/</span><br>
+│   └── <b>TodoView.vue</b>          <span class="comment">← 页面容器（handleCreate、mounted GET）</span><br>
+├── <span class="dir">components/</span><br>
+│   ├── <b>TodoForm.vue</b>         <span class="comment">← 创建表单（emit submit、空名校验、disabled 态）</span><br>
+│   └── <b>TodoList.vue</b>         <span class="comment">← 列表展示（空状态、倒序渲染、加载中）</span><br>
+├── <span class="dir">store/</span><br>
+│   └── <span class="dir">modules/</span><br>
+│       └── <b>todos.js</b>          <span class="comment">← Vuex 模块（state、ADD_TODO、SET_TODOS、actions）</span><br>
+├── <span class="dir">api/</span><br>
+│   └── <b>todos.js</b>             <span class="comment">← API 封装（axios GET/POST /todos）</span><br>
+├── <span class="dir">router/</span><br>
+│   └── <b>index.js</b>             <span class="comment">← 路由注册（/todos → TodoView 懒加载）</span><br>
+<br>
+<span class="dir">server/</span><br>
+└── <b>index.js</b>                 <span class="comment">← Express 后端（内存数组、REST API、CORS）</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Component Coverage Matrix -->
+    <div class="card" style="display:block; margin-top:12px;">
+      <div class="card-body" style="display:block;">
+        <div style="font-size:13px; font-weight:600; margin-bottom:10px;">组件 × 场景覆盖矩阵</div>
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th>源文件</th>
+              <th>S1</th><th>S2</th><th>S3</th><th>S4</th><th>S5</th><th>S6</th><th>S7</th><th>S8</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-family:monospace;font-size:12px;">TodoView.vue</td>
+              <td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td></td><td>✓</td><td>✓</td>
+            </tr>
+            <tr>
+              <td style="font-family:monospace;font-size:12px;">TodoForm.vue</td>
+              <td></td><td>✓</td><td>✓</td><td>✓</td><td></td><td>✓</td><td></td><td></td>
+            </tr>
+            <tr>
+              <td style="font-family:monospace;font-size:12px;">TodoList.vue</td>
+              <td>✓</td><td>✓</td><td>✓</td><td></td><td>✓</td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <td style="font-family:monospace;font-size:12px;">store/todos.js</td>
+              <td>✓</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td><td></td><td>✓</td><td>✓</td>
+            </tr>
+            <tr>
+              <td style="font-family:monospace;font-size:12px;">api/todos.js</td>
+              <td>✓</td><td>✓</td><td>✓</td><td></td><td>✓</td><td></td><td>✓</td><td>✓</td>
+            </tr>
+            <tr>
+              <td style="font-family:monospace;font-size:12px;">router/index.js</td>
+              <td>✓</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+            </tr>
+            <tr>
+              <td style="font-family:monospace;font-size:12px;">server/index.js</td>
+              <td>✓</td><td>✓</td><td>✓</td><td></td><td></td><td></td><td></td><td>✓</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--  SECTION: 结构小结                      -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="section" id="summary">
+    <div class="section-title">📊 结构小结</div>
+    <div class="card" style="display:block;">
+      <div class="card-body" style="display:block;">
+
+        <table class="summary-table">
+          <thead>
+            <tr><th>维度</th><th>内容</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>场景数</strong></td><td>8 个（S1~S8），覆盖正常路径 + 边缘路径 + 降级</td></tr>
+            <tr><td><strong>组件数</strong></td><td>3 个前端组件（TodoView / TodoForm / TodoList）+ 2 个基础设施（Store + API）</td></tr>
+            <tr><td><strong>后端</strong></td><td>1 个 Express 服务，内存数组存储，REST 接口 GET/POST /todos</td></tr>
+            <tr><td><strong>路由</strong></td><td>1 条 /todos → TodoView（懒加载），history 模式</td></tr>
+            <tr><td><strong>交互</strong></td><td>极简：聚焦输入 → 填写 → 回车/点击 → 即时追加。无编辑、删除、标记完成。</td></tr>
+            <tr><td><strong>动画</strong></td><td>仅 CSS transition（focus 0.2s、hover 0.2s），无额外入场/列表动画，Nprogress 已由路由层处理</td></tr>
+            <tr><td><strong>色彩</strong></td><td>蓝 #409eff 主操作、灰 #333~#bbb 层级文本、红 #e74c3c 错误</td></tr>
+            <tr><td><strong>响应式</strong></td><td>最大 720px 居中，移动端撑满，无断点拆分（MVP）</td></tr>
+            <tr><td><strong>约束</strong></td><td>最小闭环仅创建、内存存储、history 模式、无鉴权、无 i18n、无 a11y</td></tr>
+          </tbody>
+        </table>
+
+        <div style="margin-top:16px; padding:14px 18px; background:#f0f9eb; border-radius:4px; border-left:3px solid #67c23a; font-size:13px;">
+          ✅ <strong>确认清单</strong>（请在浏览器中逐条检查）：<br>
+          ① 8 个场景覆盖是否完整？缺少你认为重要的场景吗？<br>
+          ② 每个场景的交互流程和数据流是否准确？<br>
+          ③ 源文件映射与组件划分是否合理？<br>
+          ④ 时长分布和注意力占比是否符合你对用户行为的判断？<br>
+          ⑤ 动画/反馈策略（极简 CSS transition）是否满足预期？
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Expand all cards by default
+document.querySelectorAll('.card').forEach(c => c.classList.add('open'));
+</script>
+
+</body>
+</html>
