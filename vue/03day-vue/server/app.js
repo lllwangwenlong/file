@@ -20,9 +20,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// 全局 CORS:允许前端开发服务器 http://localhost:8080 访问后端接口
+var cors = require('cors');
+app.use('/todos', cors({
+  origin: 'http://localhost:8080',
+  credentials: true
+}), todosRouter);
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/todos', todosRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

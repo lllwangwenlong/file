@@ -72,17 +72,17 @@ let router =  new Router({
           }
         },
       ]
+    },
+    {
+      path: '/todos',
+      name: 'todos',
+      component: () => import('../components/TodoView'),
+      meta: {
+        title: '待办事项'
+      }
     }
-  },
-  {
-    path: '/todos',
-    name: 'todos',
-    component: () => import('../components/TodoView'),
-    meta: {
-      title: '待办事项'
-    }
-  }
-])
+  ]
+})
 
 router.beforeEach((to, from, next) => {
   Nprogress.start()
