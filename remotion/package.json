@@ -1,0 +1,22 @@
+{
+  "name": "daily-todo-remotion",
+  "version": "1.0.0",
+  "description": "Daily Todo — Remotion 可视化演示视频",
+  "scripts": {
+    "start": "npx remotion studio",
+    "build": "npx remotion render",
+    "typecheck": "tsc --noEmit",
+    "test": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.525",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "remotion": "^4.0.525"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
+}
