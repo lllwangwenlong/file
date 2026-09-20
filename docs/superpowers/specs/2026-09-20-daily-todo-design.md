@@ -70,6 +70,8 @@ Todo 项结构：
 - `vue/02day-vue/my-project/src/store/modules/todos.js`
 - `vue/02day-vue/my-project/src/components/TodoView.vue` / `TodoForm.vue` / `TodoList.vue`
 
+> 2026-09-20（plan 阶段）实测复核推翻上述「无需改动」结论，发现并修复 3 处阻断缺陷：① `src/router/index.js` 第 76 行多余 `}`、第 85 行缺少 Router 配置对象闭合（语法错误导致前端无法构建）；② `src/components/TodoView.vue:33` 可选链 `?.` 不被 babel 6 工具链支持（改为 `&&`/`||` 兼容写法）；③ `server/app.js` 未挂载 cors 中间件（跨源创建链路必失败，已启用）。修复明细见 `docs/superpowers/plans/2026-09-20-daily-todo.md`。
+
 ## 8. 测试策略
 
 - 后端：启动 server 后用 curl 验证 POST（成功 201、空名称 400）与 GET（返回已创建项）
