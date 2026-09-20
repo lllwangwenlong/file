@@ -72,7 +72,6 @@ let router =  new Router({
           }
         },
       ]
-    }
   },
   {
     path: '/todos',
@@ -82,7 +81,7 @@ let router =  new Router({
       title: '待办事项'
     }
   }
-])
+]})
 
 router.beforeEach((to, from, next) => {
   Nprogress.start()
